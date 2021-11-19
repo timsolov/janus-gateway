@@ -2999,6 +2999,7 @@ static int janus_videoroom_access_room(json_t *root, gboolean check_modify, gboo
 		if(token) {
 			char room_descriptor[26];
 			g_snprintf(room_descriptor, sizeof(room_descriptor), "room=%s", room_id_str);
+			JANUS_LOG(LOG_INFO, "room_id_str %s room_descriptor: %s\n", room_id_str, room_descriptor);
 			if(gateway->auth_signature_contains(&janus_videoroom_plugin, json_string_value(token), room_descriptor))
 				return 0;
 		}

@@ -121,6 +121,7 @@ fail:
 }
 
 gboolean janus_auth_check_signature_contains(const char *token, const char *realm, const char *desc) {
+	JANUS_LOG(LOG_INFO, "janus_auth_check_signature_contains(%s, %s, %s)\n", token, realm, desc);
 	if (!auth_enabled || auth_secret == NULL)
 		return FALSE;
 	gchar **parts = g_strsplit(token, ":", 2);

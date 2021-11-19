@@ -119,28 +119,42 @@ fail:
 	g_strfreev(parts);
 	return FALSE;
 }
-
+/* janus_auth_check_signature_contains(
+	1637336259,janus.plugin.videoroom,room=4b0f25de-bb8e-4a58-a842-2950bbdce682:Pb90/yFAgMP12ZwfUuPFy9ENYUw=, 
+	janus.plugin.videoroom, 
+	room=4b0f25de-bb8e-4a58-a842-2950bbdce682)
+*/
 gboolean janus_auth_check_signature_contains(const char *token, const char *realm, const char *desc) {
 	JANUS_LOG(LOG_INFO, "janus_auth_check_signature_contains(%s, %s, %s)\n", token, realm, desc);
-	if (!auth_enabled || auth_secret == NULL)
+	if (!auth_enabled || auth_secret == NULL) {
+		JANUS_LOG(LOG_INFO, "130\n");
 		return FALSE;
+	}
 	gchar **parts = g_strsplit(token, ":", 2);
 	gchar **data = NULL;
 	/* Token should have exactly one data and one hash part */
-	if(!parts[0] || !parts[1] || parts[2])
+	if(!parts[0] || !parts[1] || parts[2]) {
+		JANUS_LOG(LOG_INFO, "137\n");
 		goto fail;
+	}
 	data = g_strsplit(parts[0], ",", 0);
 	/* Need at least an expiry timestamp and realm */
-	if(!data[0] || !data[1])
+	if(!data[0] || !data[1]) {
+		JANUS_LOG(LOG_INFO, "143\n");
 		goto fail;
+	}
 	/* Verify timestamp */
 	gint64 expiry_time = strtoll(data[0], NULL, 10);
 	gint64 real_time = janus_get_real_time() / 1000000;
-	if(expiry_time < 0 || real_time > expiry_time)
+	if(expiry_time < 0 || real_time > expiry_time) {
+		JANUS_LOG(LOG_INFO, "150\n");
 		goto fail;
+	}
 	/* Verify realm */
-	if(strcmp(data[1], realm))
+	if(strcmp(data[1], realm)) {
+		JANUS_LOG(LOG_INFO, "155\n");
 		goto fail;
+	}
 	/* Find descriptor */
 	gboolean result = FALSE;
 	int i = 2;
@@ -150,8 +164,10 @@ gboolean janus_auth_check_signature_contains(const char *token, const char *real
 			break;
 		}
 	}
-	if (!result)
+	if (!result) {
+		JANUS_LOG(LOG_INFO, "168\n");
 		goto fail;
+	}
 	/* Verify HMAC-SHA1 */
 	unsigned char signature[EVP_MAX_MD_SIZE];
 	unsigned int len;
@@ -161,6 +177,9 @@ gboolean janus_auth_check_signature_contains(const char *token, const char *real
 	g_strfreev(data);
 	g_strfreev(parts);
 	g_free(base64);
+	
+	JANUS_LOG(LOG_INFO, "181\n");
+	
 	return result;
 
 fail:

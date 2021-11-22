@@ -3001,8 +3001,11 @@ static int janus_videoroom_access_room(json_t *root, gboolean check_modify, gboo
 			char room_descriptor[100];
 			g_snprintf(room_descriptor, sizeof(room_descriptor), "room=%s", room_id_str);
 			JANUS_LOG(LOG_INFO, "room_id_str %s room_descriptor: %s\n", room_id_str, room_descriptor);
-			if(gateway->auth_signature_contains(&janus_videoroom_plugin, json_string_value(token), room_descriptor))
-				return 0;
+			if(!gateway->auth_signature_contains(&janus_videoroom_plugin, json_string_value(token), room_descriptor)) {
+				g_snprintf(error_cause, error_cause_size, "Unauthorized (wrong token %s)", token);
+				error_code = JANUS_VIDEOROOM_ERROR_UNAUTHORIZED;
+				return error_code;
+			}
 		}
 		JANUS_CHECK_SECRET((*videoroom)->room_pin, root, "pin", error_code, error_cause2,
 			JANUS_VIDEOROOM_ERROR_MISSING_ELEMENT, JANUS_VIDEOROOM_ERROR_INVALID_ELEMENT, JANUS_VIDEOROOM_ERROR_UNAUTHORIZED);
